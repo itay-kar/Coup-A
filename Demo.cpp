@@ -69,7 +69,8 @@ int main() {
 	// is income, which cannot be blocked by any role
 	try{
 		captain.block(duke);
-	}catch (const std::exception &e)
+	}
+	catch (const std::exception &e)
 	{
 		std::cerr << e.what() << '\n';
 	}
