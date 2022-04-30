@@ -13,7 +13,7 @@ void Player::coup(Player &player)
     {
         cout << player.id << endl;
         game.remove_player(player.id);
-        wallet-=7;
+        wallet-= SEVEN;
         last = Action::coup;
     }
 };
@@ -27,6 +27,7 @@ Action Player::get_last_action() { return last; }
 
 void Player::move(Player &player_a, Player &player_b)
 {
+    game.turn();
     player_a.wallet -= 1;
     player_b.wallet += 1;
 };

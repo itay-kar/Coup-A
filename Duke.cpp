@@ -3,6 +3,7 @@ using namespace coup;
 
 void Duke::block(Player &player){
     player.remove_coins(2);
+    game.turn();
 };
 void Duke::tax(){wallet+=3;};
 TYPE Duke::get_type(){return TYPE::Duke;};

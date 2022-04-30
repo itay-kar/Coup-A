@@ -30,26 +30,28 @@ TEST_CASE("Good Scenario")
         duke.income();
         assassin.income();
     }
+    // CHECK income function works.
     CHECK_EQ(rick.coins(), 4);
 
     rick.foreign_aid();
-
+    // CHECK foreign_aid function works.
     CHECK_EQ(rick.coins(), 6);
 
     avi.transfer(assassin, rick);
     // rick should have 7 coins now.
 
+    // Checking assassin coins is down by 1 and rick coins is up by 1, caused by transfer action.
     CHECK_EQ(rick.coins(), 7);
     CHECK_EQ(assassin.coins(), 3);
 
     cont.foreign_aid();
     CHECK_EQ(cont.coins(), 6);
-
+    // Checking duke block action, and cont coins after this action.
     CHECK_NOTHROW(duke.block(cont));
     CHECK_EQ(cont.coins(), 4);
 
+    // Checking assassin virtual coup with only 3 coins.
     CHECK_NOTHROW(assassin.coup(rick));
-
     CHECK_EQ(assassin.coins(), 0);
 
     // Rick is out of the game;;
@@ -102,6 +104,7 @@ TEST_CASE("Bad Operations")
     Assassin assassin(bad_game, "asa");
     Assassin assassin2(bad_game, "asa2");
 
+    // Players not playing in their turn.
     CHECK_THROWS(assassin.income());
     CHECK_THROWS(duke.tax());
     CHECK_THROWS(avi.transfer(duke, cont));
@@ -110,6 +113,7 @@ TEST_CASE("Bad Operations")
     // Round 1;
     rick.income();
     avi.foreign_aid();
+    // Duke blocks foreign aid action.
     CHECK_NOTHROW(duke.block(avi));
     cont.income();
     duke.tax();
@@ -118,6 +122,7 @@ TEST_CASE("Bad Operations")
 
     // Round 2;
     rick.foreign_aid();
+    // Duke blocks foreign aid actions.
     CHECK_NOTHROW(duke.block(assassin));
     CHECK_NOTHROW(duke.block(rick));
     avi.income();
@@ -125,9 +130,11 @@ TEST_CASE("Bad Operations")
     duke.tax();
     assassin.income();
     assassin2.foreign_aid();
+    // income action cannot be blocked by any player should throw.
     CHECK_THROWS(duke.block(assassin));
 
     // Round 3
+    // assassin doesnt have enough coins to coup , and its not his turn.
     CHECK_THROWS(assassin.coup(duke));
     rick.income();
     avi.transfer(assassin2, avi);
@@ -135,14 +142,17 @@ TEST_CASE("Bad Operations")
     cont.foreign_aid();
     duke.tax();
     assassin.income();
-    assassin2.coup(avi);
+    // assassin2 can coup rick , already got 3 coins.
+    CHECK_NOTHROW(assassin2.coup(rick));
     CHECK_EQ(assassin2.coins(), 0);
     CHECK_NOTHROW(cont.block(assassin2));
+    CHECK(bad_game.turn() == rick.get_name());
 
     // Round 4
     rick.income();
     avi.income();
     duke.coup(assassin2);
+    // Contessa cannot block regular coup actions.
     CHECK_THROWS(cont.block(duke));
     assassin.income();
 
@@ -157,26 +167,59 @@ TEST_CASE("Bad Operations")
     rick.income();
     avi.foreign_aid();
     cont.foreign_aid();
+    // Contessa cannot block assassin after duke already out of the game.
     CHECK_THROWS(cont.block(assassin));
     assassin.foreign_aid();
-    cout << rick.coins() << avi.coins() << cont.coins() << assassin.coins()<< endl;
+    cout << rick.coins() << avi.coins() << cont.coins() << assassin.coins() << endl;
 
     // Round 7
     rick.foreign_aid();
     avi.foreign_aid();
+    // cont have 10+ coins and must coup , cannot perform any other action.
     CHECK_THROWS(cont.income());
     CHECK_THROWS(cont.foreign_aid());
     cont.coup(rick);
     assassin.foreign_aid();
 
-    //Round 8
+    // Round 8
+    // avi have 10+ coins and must coup , cannot perform any other action.
     CHECK_THROWS(avi.income());
     CHECK_THROWS(avi.foreign_aid());
-    CHECK_THROWS(avi.transfer(assassin,cont));
+    CHECK_THROWS(avi.transfer(assassin, cont));
     avi.coup(cont);
+    // cont cannot block avi coup;
     CHECK_THROWS(cont.block(avi));
     assassin.coup(avi);
+    // cont is already out of the game cannot perform actions;
     CHECK_THROWS(cont.block(assassin));
-    CHECK_EQ(bad_game.winner(),assassin.get_name());
+    CHECK_EQ(bad_game.winner(), assassin.get_name());
+}
 
+TEST_CASE("All Operations")
+{
+    Game igame;
+    Ambassador ambassador(igame, "avi");
+    Duke duke(igame, "natan");
+    Assassin assassin(igame, "joe");
+    Duke juke(igame, "moran");
+    Captain captain(igame, "ronit");
+    Contessa contessa(igame, "mor");
+
+    // Trying to add more than 6 players - Should throw;
+    CHECK_THROWS(Duke mora(igame, "mora"));
+
+    ambassador.foreign_aid();
+    // Should Throw not assassin turn
+    CHECK_THROWS(assassin.income());
+    duke.tax();
+    assassin.income();
+    juke.block(ambassador);
+    juke.foreign_aid();
+    duke.block(juke);
+    // Should throw captain cant steal from contessa cause contessa doesnt have coins.
+    CHECK_THROWS(captain.steal(contessa));
+    CHECK_EQ(igame.turn(), captain.get_name());
+    captain.steal(duke);
+    CHECK_THROWS(captain.block(captain));
+    contessa.income();
 }

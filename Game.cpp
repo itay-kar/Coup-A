@@ -24,28 +24,30 @@ vector<string> Game::players()
 string Game::winner()
 {
     int count = 0;
-    size_t winner;
+    size_t winner = 0;
     for (size_t i = 0; i < players_state.size(); i++)
     {
-        cout <<players_state[i] <<endl;
-        if (players_state[i]!="Removed")
+        cout << players_state[i] << endl;
+        if (players_state[i] != "Removed")
         {
-            count+=1;
-            winner=i;
+            count += 1;
+            winner = i;
         }
     }
 
-    if (count!=1){throw invalid_argument("game still active.\n");}
+    if (count != 1)
+    {
+        throw invalid_argument("game still active.\n");
+    }
 
     return players_names[winner];
-    
 };
 
 size_t Game::add_player(string name)
 {
     if (num_of_players < MAX_PLAYERS)
     {
-        players_names[num_of_players] = name;
+        players_names[num_of_players] = std::move(name);
 
         num_of_players += 1;
         // cout << "Added Player " << name << " Successfully." <<endl;
@@ -77,5 +79,8 @@ void Game::revive(size_t id)
         players_state[id] = "Active";
     }
 
-    else throw invalid_argument("Cannot block ");
+    else
+    {
+        throw invalid_argument("Cannot block ");
+    }
 };
