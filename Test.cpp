@@ -94,7 +94,7 @@ TEST_CASE("Good Scenario")
     CHECK(game.winner() == avi.get_name());
 };
 
-TEST_CASE("Bad Operations")
+TEST_CASE("Scenario 2")
 {
     Game bad_game;
     Captain rick{bad_game, "rick"};
@@ -207,6 +207,7 @@ TEST_CASE("All Operations")
 
     // Trying to add more than 6 players - Should throw;
     CHECK_THROWS(Duke mora(igame, "mora"));
+    vector<string> vec = igame.players();
 
     ambassador.foreign_aid();
     // Should Throw not assassin turn
@@ -222,4 +223,43 @@ TEST_CASE("All Operations")
     captain.steal(duke);
     CHECK_THROWS(captain.block(captain));
     contessa.income();
+}
+
+TEST_CASE("More than 1 game is active.")
+{
+    Game game_one;
+    Game game_two;
+
+    Duke duke_one(game_one, "rami");
+    Duke duke_two(game_two, "rami");
+    Contessa contessa_one(game_one, "nofar");
+    Contessa contessa_two(game_two, "nofar");
+    CHECK_THROWS(Duke duke_throw(game_one, "rami"));
+    CHECK_THROWS(Contessa contessa_throw(game_two, "nofar"));
+
+    duke_one.tax();
+    duke_two.foreign_aid();
+    contessa_one.foreign_aid();
+    CHECK_THROWS(duke_two.block(contessa_one));
+    duke_one.block(contessa_one);
+    CHECK_EQ(contessa_one.coins(), 0);
+    contessa_two.foreign_aid();
+    CHECK_THROWS(duke_one.block(contessa_two));
+    CHECK_EQ(contessa_two.coins(), 0);
+    duke_one.tax();
+    duke_two.tax();
+    contessa_one.foreign_aid();
+    contessa_two.foreign_aid();
+    duke_one.tax();
+    duke_two.tax();
+    contessa_one.income();
+    contessa_two.income();
+    //Trying to coup a player from another game should throw exception
+    CHECK_THROWS(duke_one.coup(contessa_two));
+    CHECK_NOTHROW(duke_one.coup(contessa_one));
+    CHECK_NOTHROW(duke_one.income());
+    CHECK_EQ(game_one.winner(),duke_one.get_name());
+    CHECK_THROWS(duke_two.coup(duke_one));
+    CHECK_NOTHROW(duke_two.coup(contessa_one));
+    
 }
