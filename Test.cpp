@@ -261,5 +261,6 @@ TEST_CASE("More than 1 game is active.")
     CHECK_EQ(game_one.winner(),duke_one.get_name());
     CHECK_THROWS(duke_two.coup(duke_one));
     CHECK_NOTHROW(duke_two.coup(contessa_one));
+    CHECK_EQ(game_two.winner(),duke_two.get_name());
     
 }
